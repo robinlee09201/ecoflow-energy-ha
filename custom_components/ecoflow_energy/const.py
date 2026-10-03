@@ -6237,8 +6237,10 @@ DELTA3_SWITCHES: list[EcoFlowSwitchDef] = [
     ),
 ]
 
-# Ranges are the vendor's own bounds, not our choice. Backup reserve tops out at
-# 50 and the charge limit cannot go below 50.
+# Ranges are the vendor's own bounds, not our choice. The charge limit cannot go
+# below 50. The backup reserve declares the full 0-100 range and the entity
+# narrows it at runtime to the span between the two battery limits (see
+# `backup_reserve_soc_bounds`).
 DELTA3_NUMBERS: list[EcoFlowNumberDef] = [
     EcoFlowNumberDef(
         "backup_reserve_soc",
@@ -6247,7 +6249,7 @@ DELTA3_NUMBERS: list[EcoFlowNumberDef] = [
         "%",
         "mdi:battery-lock",
         0,
-        50,
+        100,
         1,
     ),
     EcoFlowNumberDef(
