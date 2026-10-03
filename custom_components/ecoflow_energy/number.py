@@ -190,6 +190,8 @@ class EcoFlowNumber(
         self._attr_native_min_value = definition.min_value
         self._attr_native_max_value = definition.max_value
         self._attr_native_step = definition.step
+        if definition.slider:
+            self._attr_mode = NumberMode.SLIDER
         if definition.entity_category:
             self._attr_entity_category = _NUMBER_CATEGORY_MAP.get(
                 definition.entity_category
@@ -908,6 +910,8 @@ class EcoFlowLocalNumber(
         self._attr_native_min_value = definition.min_value
         self._attr_native_max_value = definition.max_value
         self._attr_native_step = definition.step
+        if definition.slider:
+            self._attr_mode = NumberMode.SLIDER
         if definition.entity_category:
             self._attr_entity_category = _NUMBER_CATEGORY_MAP.get(
                 definition.entity_category

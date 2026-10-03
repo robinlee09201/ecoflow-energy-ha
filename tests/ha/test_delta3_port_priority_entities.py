@@ -20,6 +20,7 @@ from typing import Any
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
+from homeassistant.components.number import NumberMode
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -506,6 +507,25 @@ class TestDerivedBoundsArePublished:
 
         assert number._bounds_moved() is False
         assert (number.native_min_value, number.native_max_value) == (50, 100)
+
+
+class TestBatteryLimitsAreSliders:
+    """A slider cannot offer a value outside the range, an input box can."""
+
+    @pytest.mark.parametrize(
+        "key", ["backup_reserve_soc", "max_charge_soc", "min_discharge_soc"]
+    )
+    async def test_battery_limits_are_sliders(
+        self, hass: HomeAssistant, key: str
+    ) -> None:
+        coordinator, _ = _coordinator(hass, DELTA3_MAX_PLUS, REPORTED)
+
+        assert _number(coordinator, key).mode == NumberMode.SLIDER
+
+    async def test_other_numbers_stay_input_boxes(self, hass: HomeAssistant) -> None:
+        coordinator, _ = _coordinator(hass, DELTA3_MAX_PLUS, REPORTED)
+
+        assert _number(coordinator, "ac_charge_power_limit").mode == NumberMode.BOX
 
 
 class TestBackupReserveFollowsTheBatteryLimits:

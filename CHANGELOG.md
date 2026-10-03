@@ -26,7 +26,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-- The Backup Reserve Level of a Delta 3 can now be set above 50 %. It used to stop at 50 %, both on the slider and in the command sent to the device. The range now runs from the Min Discharge SoC to the Max Charge SoC, follows those two limits when they change, and is 0-100 % until the device has reported them.
+- The Backup Reserve Level of a Delta 3 can now be set above 50 %. It used to stop at 50 %, both on the slider and in the command sent to the device. The range now runs from the Min Discharge SoC to the Max Charge SoC, follows those two limits when they change, and is 0-100 % until the device has reported them. Backup Reserve Level, Max Charge SoC and Min Discharge SoC are now sliders instead of input boxes, so they only offer values the device accepts.
 
 - Reconfiguring an entry that is running no longer logs a warning on Home Assistant 2026.9 that the integration reloads it in a way that stops working in Home Assistant 2026.12. The entry is now reloaded once through Home Assistant's own update mechanism. This affected reconfiguring a running Local (Modbus/TCP) entry while keeping its host and port, for example to change the unit id, and switching a running entry between Local and an account connection in either direction.
 
