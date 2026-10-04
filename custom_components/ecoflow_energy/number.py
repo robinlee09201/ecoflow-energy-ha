@@ -352,7 +352,7 @@ class EcoFlowNumber(
         feed-to-grid schedule's export power is a fifth: its floor is fixed
         and its ceiling follows the device's own feed limit once reported,
         the declared range otherwise. The Delta 3 backup reserve is a sixth: it
-        sits between the discharge limit and the charge limit.
+        runs from five points above the discharge limit to the charge limit.
         Every other number keeps the range its definition declares.
         """
         schedule_slot = self._schedule_slot()

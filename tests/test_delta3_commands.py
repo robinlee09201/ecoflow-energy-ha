@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import pytest
 
+from custom_components.ecoflow_energy.const import DELTA3_NUMBERS
 from custom_components.ecoflow_energy.ecoflow.delta3_commands import (
     AC_CHARGE_MODE_FIELD,
     DELTA3_NUMBER_PARAMS,
@@ -155,7 +156,7 @@ class TestNumberCommands:
     @pytest.mark.parametrize(
         ("key", "params_key", "low", "high"),
         [
-            ("backup_reserve_soc", "cfgBackupReverseSoc", 0, 100),
+            ("backup_reserve_soc", "cfgBackupReverseSoc", 5, 100),
             ("max_charge_soc", "cfgMaxChgSoc", 50, 100),
             ("min_discharge_soc", "cfgMinDsgSoc", 0, 30),
         ],
@@ -194,18 +195,40 @@ class TestNumberCommands:
 
 
 class TestBackupReserveBounds:
-    """The reserve sits between the discharge limit and the charge limit."""
+    """The reserve runs from five above the discharge limit to the charge limit."""
 
-    def test_bounds_are_the_two_battery_limits(self) -> None:
-        assert backup_reserve_soc_bounds(80, 20) == (20, 80)
+    def test_bounds_follow_the_two_battery_limits(self) -> None:
+        """Measured on a P231: with the discharge limit at 10 the device stored
+        a write of 12 as 15, and kept a reserve equal to the charge limit."""
+        assert backup_reserve_soc_bounds(90, 10) == (15, 90)
+        assert backup_reserve_soc_bounds(80, 20) == (25, 80)
 
-    def test_missing_limits_give_the_full_range(self) -> None:
-        assert backup_reserve_soc_bounds(None, None) == (0, 100)
-        assert backup_reserve_soc_bounds(90, None) == (0, 90)
-        assert backup_reserve_soc_bounds(None, 10) == (10, 100)
+    def test_missing_limits_give_the_declared_range(self) -> None:
+        assert backup_reserve_soc_bounds(None, None) == (5, 100)
+        assert backup_reserve_soc_bounds(90, None) == (5, 90)
+        assert backup_reserve_soc_bounds(None, 10) == (15, 100)
 
-    def test_out_of_range_limits_stay_inside_zero_to_hundred(self) -> None:
-        assert backup_reserve_soc_bounds(120, -5) == (0, 100)
+    def test_out_of_range_limits_stay_inside_the_declared_range(self) -> None:
+        assert backup_reserve_soc_bounds(120, -5) == (5, 100)
+
+    @pytest.mark.parametrize(
+        ("max_charge", "min_discharge"),
+        [(40, 45), (40, 38), (3, None)],
+    )
+    def test_crossed_limits_fall_back_to_the_declared_range(
+        self, max_charge: int, min_discharge: int | None
+    ) -> None:
+        """An inverted range makes Home Assistant refuse every value."""
+        assert backup_reserve_soc_bounds(max_charge, min_discharge) == (5, 100)
+
+    def test_the_entity_declares_the_range_the_builder_clamps_to(self) -> None:
+        """One range in two places: nothing else ties them together."""
+        definition = next(d for d in DELTA3_NUMBERS if d.key == "backup_reserve_soc")
+        entry = DELTA3_NUMBER_PARAMS["backup_reserve_soc"]
+        assert (definition.min_value, definition.max_value) == (
+            entry.minimum,
+            entry.maximum,
+        )
 
 
 class TestProtoCommands:

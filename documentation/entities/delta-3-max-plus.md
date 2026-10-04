@@ -110,7 +110,7 @@ be used in the Energy Dashboard without accumulating drift.
 
 | Entity | Unit | Range | Step | Description |
 |:---|:---:|:---:|:---:|:---|
-| Backup Reserve Level | % | 0 - 50 | 1 | Reserve SoC kept for backup |
+| Backup Reserve Level | % | Min Discharge SoC + 5 to Max Charge SoC; 5 - 100 until both are reported | 1 | Reserve SoC kept for backup. The device keeps it at least 5 % above Min Discharge SoC, and raises it when Min Discharge SoC moves up (measured on a base DELTA 3) |
 | Max Charge SoC | % | 50 - 100 | 1 | Stop charging at this level |
 | Min Discharge SoC | % | 0 - 30 | 1 | Stop discharging at this level |
 | AC Charge Power | W | 200 - 2400 | 100 | How fast to charge from the grid, the same setting as the charge speed slider in the EcoFlow app |
