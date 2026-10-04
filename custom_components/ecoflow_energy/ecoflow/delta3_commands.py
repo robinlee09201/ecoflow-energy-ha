@@ -103,7 +103,9 @@ AC_CHARGE_MODE_FIELD = 125
 AC_CHARGE_MODE_CUSTOM = 0
 
 
-# Number controls: entity key -> wire mapping. Bounds are vendor-documented.
+# Number controls: entity key -> wire mapping. Bounds are vendor-documented,
+# except the backup reserve floor, which is measured (see
+# `backup_reserve_soc_bounds`).
 DELTA3_NUMBER_PARAMS: dict[str, Delta3Number] = {
     # The widest range the battery limits can produce: the floor is the lowest
     # discharge limit plus the device's margin. The entity narrows it at
@@ -217,12 +219,14 @@ def port_priority_soc_bounds(
 # Measured on a DELTA 3 (P231) in PR #483: with the discharge limit at 10, a
 # write of 12 was stored as 15 without an error, and raising the discharge
 # limit to 20 carried a reserve of 15 up to 25. A reserve equal to the charge
-# limit (90) was kept. The device reports a corrected value only when the
-# setting changes again, so a value below the floor is never sent: it would
-# leave Home Assistant showing a reserve the device does not hold.
+# limit (90) was kept. Home Assistant then kept showing the value it sent; why
+# the correction did not reach it is not established (PR #483). A value below
+# the floor is therefore never sent.
 #
 # Only P231 is measured. The same five points separate the port priority
-# cutoffs from the discharge limit in the app on a D3M1, see above.
+# cutoffs from the discharge limit in the app on a D3M1, see above. Two D3M1
+# captures (2026-08-04) report a reserve of 0 at a discharge limit of 0 with
+# energy backup off, so the floor is not shown to hold on every model.
 BACKUP_RESERVE_SOC_KEY = "backup_reserve_soc"
 BACKUP_RESERVE_SOC_MARGIN = 5
 
